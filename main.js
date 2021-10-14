@@ -139,6 +139,53 @@ const clearComplete = () => {
     }
 };
 
+//handler edit todo con 2ble click
+const editTodo = ({target}) => {
+    if (target.nodeName.toLowerCase() !== "span") {
+        return; //el evento solo se dispara si se hace dbleclick en el span, no en el resto del DOM
+    }
+    const id = parseInt(target.parentNode.dataset.id);
+    const currentLabel = state[id].label;
+    const input = document.createElement('input');
+    input.type = "text";
+    input.value = currentLabel;
+
+    const handlerEdit = (event) =>{
+        const label = event.target.value;
+        event.stopPropagation();
+
+        if (label !== currentLabel) {
+            state = state.map((todo, index) => {
+                if (id === index) {
+                    return {
+                        ...todo,
+                        label,
+                    }
+                }
+                return todo;
+            })
+            renderTodos(state);
+            saveInLocalStorage(state);
+        }
+        event.target.display = "";
+        event.target.removeEventListener('change', handlerEdit);
+
+        input.focus;
+    }
+
+    const handlerBlur = ({target}) => {
+        target.display = "";
+        input.remove();
+        target.removeEventListener('blur', handlerBlur);
+    }
+
+    input.addEventListener('change', handlerEdit);
+    input.addEventListener('blur', handlerBlur);
+
+    target.parentNode.append(input);
+    
+};
+
 
 
 //---------ENTRY POINT---- PUNTO DE ENTRADA DE LA APP----- INICIALIZADOR---------
@@ -147,6 +194,7 @@ function init() {
     form.addEventListener('submit', addToDo) //--> submit, cuando se envia el form
     list.addEventListener('change', updateTodo);
     list.addEventListener('click', deleteTodo);
+    list.addEventListener('dblclick', editTodo);
     clear.addEventListener('click', clearComplete);
 }
 
